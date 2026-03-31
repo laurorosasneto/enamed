@@ -1,0 +1,16 @@
+.idea/
+.vscode/
+.codex-ssh/
+.DS_Store
+Thumbs.db
+
+# Moodle / PHP tooling
+vendor/
+node_modules/
+composer.lock
+package-lock.json
+
+# Test and runtime artifacts
+.phpunit.result.cache
+coverage/
+tmp/
