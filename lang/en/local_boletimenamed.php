@@ -25,11 +25,22 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Boletim ENAMED';
-$string['manageplugin'] = 'Manage Boletim ENAMED';
-$string['settings'] = 'Settings';
-$string['showinnavigation'] = 'Show plugin in navigation';
+$string['pluginname']            = 'Boletim ENAMED';
+$string['manageplugin']          = 'Manage Boletim ENAMED';
+$string['settings']              = 'Settings';
+$string['enabled']               = 'Enable plugin';
+$string['enabled_desc']          = 'When disabled the plugin page is inaccessible to all users.';
+$string['showinnavigation']      = 'Show plugin in navigation';
 $string['showinnavigation_desc'] = 'Displays a shortcut to the plugin page in Moodle navigation.';
-$string['plugindescription'] = 'Initial skeleton for the ENAMED report local plugin.';
-$string['welcomemessage'] = 'The basic structure of the plugin is ready for the next development steps.';
-$string['privacy:metadata'] = 'The local_boletimenamed plugin does not store personal data.';
+$string['plugindescription']     = 'ENAMED report — student performance tracking with charts and insights.';
+$string['plugindisabled']        = 'The Boletim ENAMED plugin is currently disabled.';
+$string['notenrolled']           = 'You are not enrolled as a student in any course.';
+$string['filterbyra']            = 'Search by RA';
+$string['ra']                    = 'RA (Student ID)';
+$string['ra_help']               = 'Enter the student RA (idnumber) to view their report.';
+$string['search']                = 'Search';
+$string['userfound']             = 'Showing report for: {$a}';
+$string['nouserfound']           = 'No student found with RA "{$a}".';
+$string['selectuserprompt']      = 'Enter a student RA above to load their report.';
+$string['welcomemessage']        = 'Welcome to Boletim ENAMED. Your performance dashboard will appear here.';
+$string['privacy:metadata']      = 'The local_boletimenamed plugin does not store personal data.';

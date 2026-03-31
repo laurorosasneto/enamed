@@ -51,6 +51,13 @@ if ($hassiteconfig) {
 
     if ($ADMIN->fulltree) {
         $settingspage->add(new admin_setting_configcheckbox(
+            'local_boletimenamed/enabled',
+            new lang_string('enabled', 'local_boletimenamed'),
+            new lang_string('enabled_desc', 'local_boletimenamed'),
+            1
+        ));
+
+        $settingspage->add(new admin_setting_configcheckbox(
             'local_boletimenamed/showinnavigation',
             new lang_string('showinnavigation', 'local_boletimenamed'),
             new lang_string('showinnavigation_desc', 'local_boletimenamed'),

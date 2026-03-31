@@ -31,6 +31,10 @@ defined('MOODLE_INTERNAL') || die();
  * @return void
  */
 function local_boletimenamed_extend_navigation(global_navigation $navigation): void {
+    if (!get_config('local_boletimenamed', 'enabled')) {
+        return;
+    }
+
     if (!get_config('local_boletimenamed', 'showinnavigation')) {
         return;
     }

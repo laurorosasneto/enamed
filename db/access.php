@@ -26,10 +26,20 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
+    // Acessa o plugin (estudantes e gestores).
     'local/boletimenamed:view' => [
-        'captype' => 'read',
+        'captype'      => 'read',
         'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => [
+        'archetypes'   => [
+            'student' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+    ],
+    // Consulta o boletim de qualquer usuário (gestores e admins).
+    'local/boletimenamed:viewall' => [
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes'   => [
             'manager' => CAP_ALLOW,
         ],
     ],
