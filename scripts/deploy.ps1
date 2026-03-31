@@ -1,6 +1,5 @@
 param(
-    [Parameter(Mandatory = $true)]
-    [string]$RemotePath
+    [string]$RemotePath = "/home/uov3of3u/public_html/enamed/local/boletimenamed"
 )
 
 $ErrorActionPreference = "Stop"
