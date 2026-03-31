@@ -25,22 +25,39 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+// Geral.
 $string['pluginname']            = 'Boletim ENAMED';
 $string['manageplugin']          = 'Gerenciar Boletim ENAMED';
 $string['settings']              = 'Configurações';
+$string['plugindescription']     = 'Boletim ENAMED — acompanhamento de rendimento com gráficos e insights.';
+$string['plugindisabled']        = 'O Boletim ENAMED está desativado no momento.';
+$string['notenrolled']           = 'Você não está matriculado como estudante em nenhum curso.';
+$string['accessdenied']          = 'Você não tem permissão para acessar este recurso.';
+
+// Configurações admin.
 $string['enabled']               = 'Ativar plugin';
 $string['enabled_desc']          = 'Quando desativado, a página do plugin fica inacessível para todos os usuários.';
 $string['showinnavigation']      = 'Exibir plugin na navegação';
 $string['showinnavigation_desc'] = 'Exibe um atalho para o plugin no menu de navegação do Moodle.';
-$string['plugindescription']     = 'Boletim ENAMED — acompanhamento de rendimento com gráficos e insights.';
-$string['plugindisabled']        = 'O Boletim ENAMED está desativado no momento.';
-$string['notenrolled']           = 'Você não está matriculado como estudante em nenhum curso.';
-$string['filterbyra']            = 'Buscar por RA';
+
+// Painel inicial — cards de módulos.
+$string['dashboard']             = 'Painel';
+$string['dashboardwelcome']      = 'Bem-vindo ao Boletim ENAMED. Selecione um módulo para começar.';
+$string['accessmodule']          = 'Acessar';
+
+// Módulo: Boletim por Simulado.
+$string['module_simulado']       = 'Boletim por Simulado';
+$string['module_simulado_desc']  = 'Visualize e compare o desempenho do estudante em cada simulado realizado.';
+
+// Filtro por RA (usado dentro dos módulos).
+$string['filterbyra']            = 'Filtrar por RA';
 $string['ra']                    = 'RA (Registro Acadêmico)';
 $string['ra_help']               = 'Informe o RA do estudante para visualizar o boletim.';
 $string['search']                = 'Buscar';
-$string['userfound']             = 'Exibindo boletim de: {$a}';
+$string['clearfilter']           = 'Limpar filtro';
+$string['userfound']             = 'Exibindo resultado de: {$a}';
 $string['nouserfound']           = 'Nenhum estudante encontrado com o RA "{$a}".';
 $string['selectuserprompt']      = 'Informe o RA de um estudante acima para carregar o boletim.';
-$string['welcomemessage']        = 'Bem-vindo ao Boletim ENAMED. Seu painel de desempenho será exibido aqui.';
+
+// Privacidade.
 $string['privacy:metadata']      = 'O plugin local_boletimenamed não armazena dados pessoais.';

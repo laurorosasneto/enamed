@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
 /**
- * Main page for local_boletimenamed.
+ * Painel principal do Boletim ENAMED — grade de módulos.
  *
  * @package     local_boletimenamed
  * @copyright   2026 Lauro Rosas Neto
@@ -28,6 +28,73 @@ $context = context_system::instance();
 
 require_login();
 
+// Plugin desativado nas configurações.
+if (!get_config('local_boletimenamed', 'enabled')) {
+    $url = new moodle_url('/local/boletimenamed/index.php');
+    $PAGE->set_context($context);
+    $PAGE->set_url($url);
+    $PAGE->set_pagelayout('standard');
+    $PAGE->set_title(get_string('pluginname', 'local_boletimenamed'));
+    $PAGE->set_heading(get_string('pluginname', 'local_boletimenamed'));
+    echo $OUTPUT->header();
+    echo $OUTPUT->notification(get_string('plugindisabled', 'local_boletimenamed'), 'warning');
+    echo $OUTPUT->footer();
+    die();
+}
+
+// Verifica permissão básica de acesso.
+if (!has_capability('local/boletimenamed:view', $context) && !is_siteadmin()) {
+    require_capability('local/boletimenamed:view', $context); // dispara erro padrão Moodle.
+}
+
+// Estudantes sem papel student em nenhum curso não devem acessar.
+$canviewall = has_capability('local/boletimenamed:viewall', $context) || is_siteadmin();
+
+if (!$canviewall) {
+    $sql = "SELECT COUNT(ra.id)
+              FROM {role_assignments} ra
+              JOIN {role} r            ON r.id   = ra.roleid
+              JOIN {context} ctx       ON ctx.id  = ra.contextid
+             WHERE ra.userid      = :userid
+               AND r.shortname    = 'student'
+               AND ctx.contextlevel = :courselevel";
+
+    $isstudent = $DB->count_records_sql($sql, [
+        'userid'      => $USER->id,
+        'courselevel' => CONTEXT_COURSE,
+    ]) > 0;
+
+    if (!$isstudent) {
+        $url = new moodle_url('/local/boletimenamed/index.php');
+        $PAGE->set_context($context);
+        $PAGE->set_url($url);
+        $PAGE->set_pagelayout('standard');
+        $PAGE->set_title(get_string('pluginname', 'local_boletimenamed'));
+        $PAGE->set_heading(get_string('pluginname', 'local_boletimenamed'));
+        echo $OUTPUT->header();
+        echo $OUTPUT->notification(get_string('notenrolled', 'local_boletimenamed'), 'warning');
+        echo $OUTPUT->footer();
+        die();
+    }
+}
+
+// -----------------------------------------------------------------------
+// Monta a lista de módulos disponíveis.
+// Cada entrada: ['key' => string-key, 'icon' => fa-icon, 'url' => moodle_url]
+// -----------------------------------------------------------------------
+$modules = [
+    [
+        'title'    => get_string('module_simulado', 'local_boletimenamed'),
+        'desc'     => get_string('module_simulado_desc', 'local_boletimenamed'),
+        'icon'     => 'fa-file-text',
+        'url'      => new moodle_url('/local/boletimenamed/simulado.php'),
+        'disabled' => false,
+    ],
+];
+
+// -----------------------------------------------------------------------
+// Renderização da página.
+// -----------------------------------------------------------------------
 $url   = new moodle_url('/local/boletimenamed/index.php');
 $title = get_string('pluginname', 'local_boletimenamed');
 
@@ -37,119 +104,56 @@ $PAGE->set_pagelayout('standard');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
-// -----------------------------------------------------------------------
-// Plugin desativado nas configurações.
-// -----------------------------------------------------------------------
-if (!get_config('local_boletimenamed', 'enabled')) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->notification(get_string('plugindisabled', 'local_boletimenamed'), 'warning');
-    echo $OUTPUT->footer();
-    die();
-}
+echo $OUTPUT->header();
 
-$canviewall = has_capability('local/boletimenamed:viewall', $context);
-$canview    = has_capability('local/boletimenamed:view', $context);
+echo html_writer::start_div('local-boletimenamed-dashboard');
 
-// -----------------------------------------------------------------------
-// Gestores / Administradores — podem consultar qualquer estudante por RA.
-// -----------------------------------------------------------------------
-if ($canviewall || is_siteadmin()) {
-    $ra          = optional_param('ra', '', PARAM_TEXT);
-    $ra          = trim($ra);
-    $targetuser  = null;
-    $notfound    = false;
+// Saudação.
+echo html_writer::tag(
+    'p',
+    get_string('dashboardwelcome', 'local_boletimenamed'),
+    ['class' => 'lead mb-4']
+);
 
-    if ($ra !== '') {
-        $targetuser = $DB->get_record('user', ['idnumber' => $ra, 'deleted' => 0]);
-        if (!$targetuser) {
-            $notfound = true;
-        }
-    }
+// Grade de cards.
+echo html_writer::start_div('row');
 
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading($title);
+foreach ($modules as $mod) {
+    $cardclass = 'card h-100 shadow-sm' . ($mod['disabled'] ? ' opacity-50' : '');
 
-    // Formulário de busca por RA.
-    $searchform  = html_writer::start_tag('form', ['method' => 'get', 'action' => $url, 'class' => 'mb-3']);
-    $searchform .= html_writer::start_div('input-group');
-    $searchform .= html_writer::label(
-        get_string('ra', 'local_boletimenamed'),
-        'ra',
-        true,
-        ['class' => 'input-group-text']
-    );
-    $searchform .= html_writer::empty_tag('input', [
-        'type'        => 'text',
-        'id'          => 'ra',
-        'name'        => 'ra',
-        'value'       => s($ra),
-        'class'       => 'form-control',
-        'placeholder' => get_string('ra', 'local_boletimenamed'),
-        'autocomplete'=> 'off',
-    ]);
-    $searchform .= html_writer::tag(
-        'button',
-        get_string('search', 'local_boletimenamed'),
-        ['type' => 'submit', 'class' => 'btn btn-primary']
-    );
-    $searchform .= html_writer::end_div();
-    $searchform .= html_writer::end_tag('form');
+    $icon = html_writer::tag('i', '', ['class' => 'fa ' . $mod['icon'] . ' fa-3x mb-3 text-primary', 'aria-hidden' => 'true']);
 
-    echo $searchform;
-
-    if ($notfound) {
-        echo $OUTPUT->notification(
-            get_string('nouserfound', 'local_boletimenamed', s($ra)),
-            'warning'
+    if ($mod['disabled']) {
+        $btn = html_writer::tag(
+            'button',
+            get_string('accessmodule', 'local_boletimenamed'),
+            ['class' => 'btn btn-secondary', 'disabled' => 'disabled']
         );
-    } elseif ($targetuser !== null) {
-        echo $OUTPUT->notification(
-            get_string('userfound', 'local_boletimenamed', fullname($targetuser) . ' (RA: ' . s($targetuser->idnumber) . ')'),
-            'success'
+    } else {
+        $btn = html_writer::link(
+            $mod['url'],
+            get_string('accessmodule', 'local_boletimenamed'),
+            ['class' => 'btn btn-primary stretched-link']
         );
-        // TODO: Etapas futuras — renderizar o dashboard do $targetuser aqui.
-        echo html_writer::div(get_string('welcomemessage', 'local_boletimenamed'), 'alert alert-info');
-    } else {
-        echo html_writer::div(get_string('selectuserprompt', 'local_boletimenamed'), 'alert alert-secondary');
     }
 
-    echo $OUTPUT->footer();
-    die();
+    $cardbody = html_writer::div(
+        $icon .
+        html_writer::tag('h5', $mod['title'], ['class' => 'card-title']) .
+        html_writer::tag('p', $mod['desc'], ['class' => 'card-text text-muted small']) .
+        $btn,
+        'card-body d-flex flex-column align-items-center text-center'
+    );
+
+    $card = html_writer::div(
+        html_writer::div($cardbody, $cardclass),
+        'col-12 col-sm-6 col-md-4 col-lg-3 mb-4'
+    );
+
+    echo $card;
 }
 
-// -----------------------------------------------------------------------
-// Estudantes — acesso permitido apenas se matriculado em algum curso.
-// -----------------------------------------------------------------------
-if ($canview) {
-    // Verifica se o usuário possui papel de estudante em algum curso ativo.
-    $sql = "SELECT COUNT(ra.id)
-              FROM {role_assignments} ra
-              JOIN {role} r ON r.id = ra.roleid
-              JOIN {context} ctx ON ctx.id = ra.contextid
-             WHERE ra.userid = :userid
-               AND r.shortname = 'student'
-               AND ctx.contextlevel = :courselevel";
+echo html_writer::end_div(); // .row
+echo html_writer::end_div(); // .local-boletimenamed-dashboard
 
-    $isstudent = $DB->count_records_sql($sql, [
-        'userid'      => $USER->id,
-        'courselevel' => CONTEXT_COURSE,
-    ]) > 0;
-
-    echo $OUTPUT->header();
-    echo $OUTPUT->heading($title);
-
-    if (!$isstudent) {
-        echo $OUTPUT->notification(get_string('notenrolled', 'local_boletimenamed'), 'warning');
-    } else {
-        echo html_writer::div(get_string('welcomemessage', 'local_boletimenamed'), 'alert alert-info');
-        // TODO: Etapas futuras — renderizar o dashboard do $USER aqui.
-    }
-
-    echo $OUTPUT->footer();
-    die();
-}
-
-// -----------------------------------------------------------------------
-// Sem permissão.
-// -----------------------------------------------------------------------
-require_capability('local/boletimenamed:view', $context);
+echo $OUTPUT->footer();
